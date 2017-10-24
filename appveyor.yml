@@ -13,107 +13,56 @@ environment:
   # Tell msys2 to inherit the current directory when starting the shell
   CHERE_INVOKING: 1
   matrix:
-    - BUILD_TYPE: mingw
+    - BUILD_TYPE: msvc
 
 platform:
   - x64
-     
-branches:
-  only:
-    - master
-    
+
 configuration:
   - Release
 
 install:
   - git submodule update --init --recursive
-  - ps: |
-          $dependencies = "mingw64/mingw-w64-x86_64-cmake",
-                          "mingw64/mingw-w64-x86_64-qt5",
-                          "mingw64/mingw-w64-x86_64-curl",
-                          "mingw64/mingw-w64-x86_64-SDL2"
-          # redirect err to null to prevent warnings from becoming errors
-          # workaround to prevent pacman from failing due to cyclical dependencies
-          C:\msys64\usr\bin\bash -lc "pacman --noconfirm -S mingw64/mingw-w64-x86_64-freetype mingw64/mingw-w64-x86_64-fontconfig" 2> $null
-          C:\msys64\usr\bin\bash -lc "pacman --noconfirm -S $dependencies" 2> $null
 
 before_build:
   - mkdir %BUILD_TYPE%_build
   - cd %BUILD_TYPE%_build
   - ps: |
-          C:\msys64\usr\bin\bash.exe -lc "cmake -G 'MSYS Makefiles' -DUSE_SYSTEM_CURL=1 -DCITRA_USE_BUNDLED_CURL=1 -DCMAKE_BUILD_TYPE=Release .. 2>&1"
+          # redirect stderr and change the exit code to prevent powershell from cancelling the build if cmake prints a warning
+          cmd /C 'cmake -G "Visual Studio 15 2017 Win64" -DCITRA_USE_BUNDLED_QT=1 -DCITRA_USE_BUNDLED_SDL2=1 -DCMAKE_USE_OPENSSL=0 .. 2>&1 && exit 0'
   - cd ..
 
 build_script:
   - ps: |
-          C:\msys64\usr\bin\bash.exe -lc 'mingw32-make -C mingw_build/ 2>&1'
-          
+          # https://www.appveyor.com/docs/build-phase
+          msbuild msvc_build/citra.sln /maxcpucount /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
 after_build:
   - ps: |
-        $GITDATE = $(git show -s --date=short --format='%ad') -replace "-",""
-        $GITREV = $(git show -s --format='%h')
+          $GITDATE = $(git show -s --date=short --format='%ad') -replace "-",""
+          $GITREV = $(git show -s --format='%h')
 
-          $RELEASE_DIST = "tomodachi-mingw"
+          $RELEASE_DIST = "head"
 
-          $MINGW_BUILD_ZIP = "citra-windows-mingw-$GITDATE-$GITREV.zip" -replace " ", ""
+          # Where are these spaces coming from? Regardless, let's remove them
+          $MSVC_BUILD_ZIP = "citra-windows-msvc-$GITDATE-$GITREV.zip" -replace " ", ""
 
-          # store the build information in env vars so we can use them as artifacts
-          $env:BUILD_ZIP = $MINGW_BUILD_ZIP
-          $env:TRANSLATION_TS = "translation.ts"
+          # set the build names as env vars so the artifacts can upload them
+          $env:BUILD_ZIP = $MSVC_BUILD_ZIP
 
-          $CMAKE_SOURCE_DIR = "$env:APPVEYOR_BUILD_FOLDER"
-          $CMAKE_BINARY_DIR = "$CMAKE_SOURCE_DIR/mingw_build"
+          rm .\msvc_build\bin\release\*.pdb
 
           mkdir $RELEASE_DIST
-          mkdir $RELEASE_DIST/platforms
-
-          # copy citra and other release files to the release folder
-          Get-ChildItem "$CMAKE_BINARY_DIR" -Recurse -Filter "citra-qt.exe" | Copy-Item -destination $RELEASE_DIST/citra-qt-sse4.1.exe
-          Copy-Item $CMAKE_SOURCE_DIR\dlls\SDL2.dll -Destination $RELEASE_DIST
-          Copy-Item -path "$CMAKE_SOURCE_DIR/Text Files/1.ReadMe First.txt" -destination "$RELEASE_DIST/1.ReadMe First.txt"
-          Copy-Item -path "$CMAKE_SOURCE_DIR/license.txt" -destination "$RELEASE_DIST/2.license.txt"
-          
-          # copy translation
-          Get-ChildItem "$CMAKE_SOURCE_DIR" -Recurse -Filter "translation.ts" | Copy-Item -destination $CMAKE_SOURCE_DIR
-
-          # copy the libcurl dll
-          Get-ChildItem "$CMAKE_BINARY_DIR" -Recurse -Filter "libcurl.dll" | Copy-Item -destination $RELEASE_DIST
-          # copy all the dll dependencies to the release folder
-          # hardcoded list because we don't build static and determining the list of dlls from the binary is a pain.
-          $MingwDLLs = "Qt5Core.dll","Qt5Widgets.dll","Qt5Gui.dll","Qt5OpenGL.dll",
-                       # QT dll dependencies
-                       "libbz2-*.dll","libicudt*.dll","libicuin*.dll","libicuuc*.dll","libffi-*.dll",
-                       "libfreetype-*.dll","libglib-*.dll","libgobject-*.dll","libgraphite2.dll","libiconv-*.dll",
-                       "libharfbuzz-*.dll","libintl-*.dll","libpcre-*.dll","libpcre16-*.dll","libpng16-*.dll",
-                       # Runtime/Other dependencies
-                       "libgcc_s_seh-*.dll","libstdc++-*.dll","libwinpthread-*.dll","zlib1.dll"
-          foreach ($file in $MingwDLLs) {
-            Copy-Item -path "C:/msys64/mingw64/bin/$file" -force -destination "$RELEASE_DIST"
-          }
-          # the above list copies a few extra debug dlls that aren't needed (thanks globbing patterns!)
-          # so we can remove them by hardcoding another list of extra dlls to remove
-          $DebugDLLs = "libicudtd*.dll","libicuind*.dll","libicuucd*.dll"
-          foreach ($file in $DebugDLLs) {
-            Remove-Item -path "$RELEASE_DIST/$file"
-          }
-
-          # copy the qt windows plugin dll to platforms
-          Copy-Item -path "C:/msys64/mingw64/share/qt5/plugins/platforms/qwindows.dll" -force -destination "$RELEASE_DIST/platforms"
-
-          7z a -tzip $MINGW_BUILD_ZIP $RELEASE_DIST\*
-
-test_script:
-  - cd %BUILD_TYPE%_build
-  - ps: |
-          C:\msys64\usr\bin\bash.exe -lc "ctest -VV -C Release"
-  - cd ..
+          Copy-Item .\msvc_build\bin\release\* -Destination $RELEASE_DIST -Recurse
+          Remove-Item "$RELEASE_DIST\tests.exe"
+          Copy-Item -path .\license.txt -destination $RELEASE_DIST\2.license.txt
+          Copy-Item -path ".\Text Files\1.ReadMe First.txt" -destination $RELEASE_DIST
+          7z a -tzip $MSVC_BUILD_ZIP $RELEASE_DIST\*
 
 artifacts:
   - path: $(BUILD_ZIP)
     name: build
     type: zip
-  - path: $(TRANSLATION_TS)
-    name: translation-ts
 
 deploy:
  - provider: Environment

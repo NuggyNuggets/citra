@@ -49,11 +49,6 @@
         <string>Camera</string>
        </attribute>
       </widget>
-      <widget class="ConfigureLog" name="logTab">
-       <attribute name="title">
-        <string>Log</string>
-       </attribute>
-      </widget>
      <widget class="ConfigureDebug" name="debugTab">
       <attribute name="title">
        <string>Debug</string>
@@ -116,12 +111,6 @@
    <class>ConfigureGraphics</class>
    <extends>QWidget</extends>
    <header>configuration/configure_graphics.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ConfigureLog</class>
-   <extends>QWidget</extends>
-   <header>configuration/configure_log.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

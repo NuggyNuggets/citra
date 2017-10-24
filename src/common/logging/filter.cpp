@@ -21,10 +21,6 @@ void Filter::SetClassLevel(Class log_class, Level level) {
     class_levels[static_cast<size_t>(log_class)] = level;
 }
 
-    Level Filter::GetClassLevel(Class log_class) {
-    return class_levels[static_cast<size_t>(log_class)];
-}
-
 void Filter::ParseFilterString(const std::string& filter_str) {
     auto clause_begin = filter_str.cbegin();
     while (clause_begin != filter_str.cend()) {

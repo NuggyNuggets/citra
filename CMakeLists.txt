@@ -11,7 +11,7 @@ option(CITRA_USE_BUNDLED_SDL2 "Download bundled SDL2 binaries" OFF)
 
 option(ENABLE_QT "Enable the Qt frontend" ON)
 option(CITRA_USE_BUNDLED_QT "Download bundled Qt binaries" OFF)
-option(GENERATE_QT_TRANSLATION "Generate translation.ts and translation.qm files for Qt frontend translation" ON)
+option(GENERATE_QT_TRANSLATION "Generate translation.ts and translation.qm files for Qt frontend translation" OFF)
 
 option(ENABLE_WEB_SERVICE "Enable web services (telemetry, etc.)" ON)
 option(CITRA_USE_BUNDLED_CURL "FOR MINGW ONLY: Download curl configured against winssl instead of openssl" OFF)

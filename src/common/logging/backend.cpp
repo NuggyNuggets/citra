@@ -93,32 +93,6 @@ const char* GetLogClassName(Class log_class) {
     }
 }
 
-    ClassHierarchy::ClassHierarchy() {
-    for (ClassType i = 0; i < static_cast<ClassType>(Class::Count); ++i) {
-        Class log_class = static_cast<Class>(i);
-        switch (log_class) {
-#define CLS(x)                                                                                     \
-    case Class::x:                                                                                 \
-        groups.push_back(Group{Class::x, {}});                                                     \
-        break;
-#define SUB(x, y)                                                                                  \
-    case Class::x##_##y:                                                                           \
-        std::find_if(groups.begin(), groups.end(), [](const Group& group) {                        \
-            return group.parent == Class::x;                                                       \
-        })->sub_classes.push_back(Class::x##_##y);                                                 \
-        break;
-            ALL_LOG_CLASSES()
-#undef CLS
-#undef SUB
-
-        default:
-            UNREACHABLE();
-        }
-    }
-}
-
-const ClassHierarchy g_class_hierarchy;
-    
 const char* GetLevelName(Level log_level) {
 #define LVL(x)                                                                                     \
     case Level::x:                                                                                 \
@@ -164,10 +138,6 @@ static Filter* filter = nullptr;
 
 void SetFilter(Filter* new_filter) {
     filter = new_filter;
-}
-
-    Filter* GetFilter() {
-    return filter;
 }
     
 void LogMessage(Class log_class, Level log_level, const char* filename, unsigned int line_nr,

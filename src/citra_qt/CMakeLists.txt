@@ -12,7 +12,6 @@ set(SRCS
             configuration/configure_dialog.cpp
             configuration/configure_general.cpp
             configuration/configure_graphics.cpp
-            configuration/configure_log.cpp
             configuration/configure_input.cpp
 	    configuration/configure_input_widget.cpp
             configuration/configure_system.cpp
@@ -51,7 +50,6 @@ set(HEADERS
             configuration/configure_dialog.h
             configuration/configure_general.h
             configuration/configure_graphics.h
-            configuration/configure_log.h 
             configuration/configure_input.h
 	    configuration/configure_input_widget.h
             configuration/configure_system.h
@@ -89,7 +87,6 @@ set(UIS
             configuration/configure_debug.ui
             configuration/configure_general.ui
             configuration/configure_graphics.ui
-            configuration/configure_log.ui 
             configuration/configure_input.ui
             configuration/configure_system.ui
             configuration/configure_web.ui

@@ -47,5 +47,4 @@ Entry CreateEntry(Class log_class, Level log_level, const char* filename, unsign
                   const char* function, const char* format, va_list args);
 
 void SetFilter(Filter* filter);
-Filter* GetFilter();
 }
