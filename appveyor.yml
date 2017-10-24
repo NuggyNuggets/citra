@@ -59,6 +59,7 @@ after_build:
           mkdir $RELEASE_DIST
           Copy-Item .\msvc_build\bin\release\* -Destination $RELEASE_DIST -Recurse
           Remove-Item "$RELEASE_DIST\tests.exe"
+          Remove-Item "$RELEASE_DIST\citra.exe"
           Copy-Item -path .\license.txt -destination $RELEASE_DIST\2.license.txt
           Copy-Item -path ".\Text Files\1.ReadMe First.txt" -destination $RELEASE_DIST
           7z a -tzip $MSVC_BUILD_ZIP $RELEASE_DIST\*
