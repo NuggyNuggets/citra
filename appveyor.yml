@@ -15,6 +15,10 @@ environment:
   matrix:
     - BUILD_TYPE: msvc
 
+branches:
+  only:
+    - master
+
 platform:
   - x64
 
