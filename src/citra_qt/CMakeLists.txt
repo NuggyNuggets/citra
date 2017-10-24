@@ -32,6 +32,7 @@ set(SRCS
             util/spinbox.cpp
             util/util.cpp
             bootmanager.cpp
+	    cheatsearch.cpp
             cheat_gui.cpp
             game_list.cpp
             hotkeys.cpp
@@ -72,6 +73,7 @@ set(HEADERS
             util/spinbox.h
             util/util.h
             bootmanager.h
+	    cheatsearch.h
             cheat_gui.h
             game_list.h
             game_list_p.h
@@ -91,6 +93,7 @@ set(UIS
             configuration/configure_system.ui
             configuration/configure_web.ui
             debugger/registers.ui
+	    cheatsearch.ui
             cheat_gui.ui
             hotkeys.ui
             main.ui

@@ -132,6 +132,7 @@ private slots:
     void OnSwapScreens();
     void OnConfigure();
     void OnCheats();
+    void OnCheatSearch();
     void OnToggleFilterBar();
     void ShowAboutDialog();
     void OnDisplayTitleBars(bool);
@@ -184,7 +185,8 @@ private:
     bool defer_update_prompt = false;
 	
     std::shared_ptr<class CheatDialog> cheatWindow;
-
+    std::shared_ptr<class CheatSearch> cheatSearchWindow;
+	
     QAction* actions_recent_files[max_recent_files_item];
 
     QTranslator translator;
